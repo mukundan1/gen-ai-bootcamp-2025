@@ -1,4 +1,4 @@
-## Chat-GPT Powered Assistant Guide
+## Claude Powered Assistant Guide
 
 ## Which Model
 Claude Sonnet 3.5 (2025 Q1)
