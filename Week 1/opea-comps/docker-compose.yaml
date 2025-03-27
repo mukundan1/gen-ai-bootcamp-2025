@@ -4,12 +4,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: megaservice
-  #  #depends_on:
-  #  #  - redis-vector-db
-  #  #  - tei-embedding-service
-  #  #  - retriever
-  #  #  - tei-reranking-service
-  #  #  - vllm-service
     ports:
       - "8888:8888"
     ipc: host

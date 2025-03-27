@@ -4,7 +4,7 @@ import argparse
 import json
 import re
 
-from comps import MegaServiceEndpoint, MicroService, ServiceOrchestrator, ServiceRoleType, ServiceType
+from comps import MicroService, ServiceOrchestrator, ServiceRoleType
 from comps.cores.mega.utils import handle_message
 from comps.cores.proto.api_protocol import (
     ChatCompletionRequest,
