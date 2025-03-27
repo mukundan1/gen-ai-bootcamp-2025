@@ -1,77 +1,32 @@
-from flask import Flask, g
-from flask_cors import CORS
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes.words import router as words_router
+from routes.groups import router as groups_router
+from routes.study_activities import router as study_activities_router
+from routes.study_sessions import router as study_sessions_router
+from routes.dashboard import router as dashboard_router
+from routes.reset import router as reset_router
+from routes.settings import router as settings_router
 
-from lib.db import Db
+app = FastAPI(
+    title="Language Portal API",
+    description="API for managing language learning resources",
+    version="1.0.0"
+)
 
-import routes.words
-import routes.groups
-import routes.study_sessions
-import routes.dashboard
-import routes.study_activities
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
 
-def get_allowed_origins(app):
-    try:
-        cursor = app.db.cursor()
-        cursor.execute('SELECT url FROM study_activities')
-        urls = cursor.fetchall()
-        # Convert URLs to origins (e.g., https://example.com/app -> https://example.com)
-        origins = set()
-        for url in urls:
-            try:
-                from urllib.parse import urlparse
-                parsed = urlparse(url['url'])
-                origin = f"{parsed.scheme}://{parsed.netloc}"
-                origins.add(origin)
-            except:
-                continue
-        return list(origins) if origins else ["*"]
-    except:
-        return ["*"]  # Fallback to allow all origins if there's an error
-
-def create_app(test_config=None):
-    app = Flask(__name__)
-    
-    if test_config is None:
-        app.config.from_mapping(
-            DATABASE='words.db'
-        )
-    else:
-        app.config.update(test_config)
-    
-    # Initialize database first since we need it for CORS configuration
-    app.db = Db(database=app.config['DATABASE'])
-    
-    # Get allowed origins from study_activities table
-    allowed_origins = get_allowed_origins(app)
-    
-    # In development, add localhost to allowed origins
-    if app.debug:
-        allowed_origins.extend(["http://localhost:8080", "http://127.0.0.1:8080"])
-    
-    # Configure CORS with combined origins
-    CORS(app, resources={
-        r"/*": {
-            "origins": allowed_origins,
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
-        }
-    })
-
-    # Close database connection
-    @app.teardown_appcontext
-    def close_db(exception):
-        app.db.close()
-
-    # load routes -----------
-    routes.words.load(app)
-    routes.groups.load(app)
-    routes.study_sessions.load(app)
-    routes.dashboard.load(app)
-    routes.study_activities.load(app)
-    
-    return app
-
-app = create_app()
-
-if __name__ == '__main__':
-    app.run(debug=True)
+app.include_router(words_router, prefix="/api")
+app.include_router(groups_router, prefix="/api")
+app.include_router(study_activities_router, prefix="/api")
+app.include_router(study_sessions_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
+app.include_router(reset_router, prefix="/api")
+app.include_router(settings_router, prefix="/api") 

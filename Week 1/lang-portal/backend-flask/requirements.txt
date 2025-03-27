@@ -1,5 +1,6 @@
-flask
-flask-cors
+fastapi
+uvicorn
+pydantic 
 invoke
-pytest==7.4.3
-pytest-flask==1.3.0
+pytest
+httpx

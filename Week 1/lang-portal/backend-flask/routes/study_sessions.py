@@ -1,172 +1,247 @@
-from flask import request, jsonify, g
-from flask_cors import cross_origin
+from fastapi import APIRouter, HTTPException, Query, Path, Body
+from lib.db import get_db_connection
+from models import PaginatedStudySessions, StudySession, PaginatedWords, WordReview
+from utils import paginate
 from datetime import datetime
-import math
+import json
 
-def load(app):
-  # todo /study_sessions POST
+router = APIRouter()
 
-  @app.route('/api/study-sessions', methods=['GET'])
-  @cross_origin()
-  def get_study_sessions():
-    try:
-      cursor = app.db.cursor()
-      
-      # Get pagination parameters
-      page = request.args.get('page', 1, type=int)
-      per_page = request.args.get('per_page', 10, type=int)
-      offset = (page - 1) * per_page
+@router.get("/study_sessions", response_model=PaginatedStudySessions, tags=["Study Sessions"])
+def get_study_sessions(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=100)):
+    """
+    Retrieve a paginated list of study sessions.
 
-      # Get total count
-      cursor.execute('''
-        SELECT COUNT(*) as count 
+    - **page**: The page number to retrieve.
+    - **page_size**: The number of items per page.
+    """
+    with get_db_connection() as conn:
+        query = """
+        SELECT ss.id,
+               sa.name AS activity_name,
+               g.name AS group_name,
+               ss.created_at AS start_time,
+               NULL AS end_time,
+               (SELECT COUNT(*) FROM word_review_items wri 
+                WHERE wri.study_session_id = ss.id) as review_items_count
         FROM study_sessions ss
-        JOIN groups g ON g.id = ss.group_id
-        JOIN study_activities sa ON sa.id = ss.study_activity_id
-      ''')
-      total_count = cursor.fetchone()['count']
-
-      # Get paginated sessions
-      cursor.execute('''
-        SELECT 
-          ss.id,
-          ss.group_id,
-          g.name as group_name,
-          sa.id as activity_id,
-          sa.name as activity_name,
-          ss.created_at,
-          COUNT(wri.id) as review_items_count
-        FROM study_sessions ss
-        JOIN groups g ON g.id = ss.group_id
-        JOIN study_activities sa ON sa.id = ss.study_activity_id
-        LEFT JOIN word_review_items wri ON wri.study_session_id = ss.id
-        GROUP BY ss.id
+        LEFT JOIN study_activities sa ON sa.id = ss.study_activity_id
+        LEFT JOIN groups g ON g.id = ss.group_id
         ORDER BY ss.created_at DESC
-        LIMIT ? OFFSET ?
-      ''', (per_page, offset))
-      sessions = cursor.fetchall()
+        """
+        paginated_query = paginate(query, page, page_size)
+        cursor = conn.execute(paginated_query)
+        rows = cursor.fetchall()
+        
+        if not rows:
+            raise HTTPException(status_code=404, detail="No study sessions found")
+        
+        # Convert rows to list of StudySession models
+        study_sessions = [
+            {
+                "id": row[0],
+                "activity_name": row[1],
+                "group_name": row[2],
+                "start_time": row[3],
+                "end_time": row[4],
+                "review_items_count": row[5]
+            } for row in rows
+        ]
 
-      return jsonify({
-        'items': [{
-          'id': session['id'],
-          'group_id': session['group_id'],
-          'group_name': session['group_name'],
-          'activity_id': session['activity_id'],
-          'activity_name': session['activity_name'],
-          'start_time': session['created_at'],
-          'end_time': session['created_at'],  # For now, just use the same time since we don't track end time
-          'review_items_count': session['review_items_count']
-        } for session in sessions],
-        'total': total_count,
-        'page': page,
-        'per_page': per_page,
-        'total_pages': math.ceil(total_count / per_page)
-      })
-    except Exception as e:
-      return jsonify({"error": str(e)}), 500
+        # Calculate total items and total pages
+        total_items = conn.execute("SELECT COUNT(*) FROM study_sessions").fetchone()[0]
+        total_pages = (total_items + page_size - 1) // page_size
+        
+        return {
+            "study_sessions": study_sessions,
+            "pagination": {
+                "current_page": page,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "items_per_page": page_size
+            }
+        }
 
-  @app.route('/api/study-sessions/<id>', methods=['GET'])
-  @cross_origin()
-  def get_study_session(id):
-    try:
-      cursor = app.db.cursor()
-      
-      # Get session details
-      cursor.execute('''
-        SELECT 
-          ss.id,
-          ss.group_id,
-          g.name as group_name,
-          sa.id as activity_id,
-          sa.name as activity_name,
-          ss.created_at,
-          COUNT(wri.id) as review_items_count
+@router.get("/study_sessions/{session_id}", response_model=StudySession, tags=["Study Sessions"])
+def get_study_session(session_id: int = Path(..., title="The ID of the study session to retrieve")):
+    """
+    Retrieve a specific study session by ID.
+
+    - **session_id**: The ID of the study session to retrieve.
+    """
+    with get_db_connection() as conn:
+        query = """
+        SELECT ss.id,
+               sa.name AS activity_name,
+               g.name AS group_name,
+               ss.created_at AS start_time,
+               NULL AS end_time,
+               (SELECT COUNT(*) FROM word_review_items wri 
+                WHERE wri.study_session_id = ss.id) as review_items_count
         FROM study_sessions ss
-        JOIN groups g ON g.id = ss.group_id
-        JOIN study_activities sa ON sa.id = ss.study_activity_id
-        LEFT JOIN word_review_items wri ON wri.study_session_id = ss.id
+        LEFT JOIN study_activities sa ON sa.id = ss.study_activity_id
+        LEFT JOIN groups g ON g.id = ss.group_id
         WHERE ss.id = ?
-        GROUP BY ss.id
-      ''', (id,))
-      
-      session = cursor.fetchone()
-      if not session:
-        return jsonify({"error": "Study session not found"}), 404
+        """
+        cursor = conn.execute(query, (session_id,))
+        row = cursor.fetchone()
+        
+        if not row:
+            raise HTTPException(status_code=404, detail="Study session not found")
+        
+        # Convert row to StudySession model
+        study_session = StudySession(
+            id=row[0],
+            activity_name=row[1],
+            group_name=row[2],
+            start_time=row[3],
+            end_time=row[4],
+            review_items_count=row[5]
+        ).model_dump()
+        
+        return study_session 
 
-      # Get pagination parameters
-      page = request.args.get('page', 1, type=int)
-      per_page = request.args.get('per_page', 10, type=int)
-      offset = (page - 1) * per_page
+@router.get("/study_sessions/{session_id}/words", response_model=PaginatedWords, tags=["Study Sessions"])
+def get_session_words(
+    session_id: int = Path(..., title="The ID of the study session to retrieve words for"),
+    page: int = Query(1, ge=1), 
+    page_size: int = Query(10, ge=1, le=100)
+):
+    """
+    Retrieve a paginated list of words for a specific study session.
 
-      # Get the words reviewed in this session with their review status
-      cursor.execute('''
-        SELECT 
-          w.*,
-          COALESCE(SUM(CASE WHEN wri.correct = 1 THEN 1 ELSE 0 END), 0) as session_correct_count,
-          COALESCE(SUM(CASE WHEN wri.correct = 0 THEN 1 ELSE 0 END), 0) as session_wrong_count
+    - **session_id**: The ID of the study session to retrieve words for.
+    - **page**: The page number to retrieve.
+    - **page_size**: The number of items per page.
+    """
+    with get_db_connection() as conn:
+        # First check if the session exists
+        session_exists = conn.execute(
+            "SELECT 1 FROM study_sessions WHERE id = ?", 
+            (session_id,)
+        ).fetchone()
+        
+        if not session_exists:
+            raise HTTPException(status_code=404, detail="Study session not found")
+
+        # Query to get words for the session
+        query = """
+        SELECT w.id, w.jamaican_patois, w.english, w.parts,
+               COALESCE(SUM(CASE WHEN wr.correct THEN 1 ELSE 0 END), 0) as correct_count,
+               COALESCE(SUM(CASE WHEN NOT wr.correct THEN 1 ELSE 0 END), 0) as wrong_count
         FROM words w
         JOIN word_review_items wri ON wri.word_id = w.id
+        LEFT JOIN word_reviews wr ON wr.word_id = w.id
         WHERE wri.study_session_id = ?
         GROUP BY w.id
-        ORDER BY w.kanji
-        LIMIT ? OFFSET ?
-      ''', (id, per_page, offset))
-      
-      words = cursor.fetchall()
+        """
+        paginated_query = paginate(query, page, page_size)
+        cursor = conn.execute(paginated_query, (session_id,))
+        rows = cursor.fetchall()
+        
+        if not rows:
+            raise HTTPException(
+                status_code=404, 
+                detail="No words found for this study session"
+            )
+        
+        # Convert rows to list of Word models
+        words = [
+            {
+                "id": row[0],
+                "jamaican_patois": row[1],
+                "english": row[2],
+                "parts": json.loads(row[3]) if row[3] else None,
+                "correct_count": row[4],
+                "wrong_count": row[5]
+            } for row in rows
+        ]
 
-      # Get total count of words
-      cursor.execute('''
-        SELECT COUNT(DISTINCT w.id) as count
-        FROM words w
-        JOIN word_review_items wri ON wri.word_id = w.id
-        WHERE wri.study_session_id = ?
-      ''', (id,))
-      
-      total_count = cursor.fetchone()['count']
+        # Get total count for pagination
+        total_items = conn.execute(
+            """
+            SELECT COUNT(DISTINCT w.id)
+            FROM words w
+            JOIN word_review_items wri ON wri.word_id = w.id
+            WHERE wri.study_session_id = ?
+            """, 
+            (session_id,)
+        ).fetchone()[0]
+        
+        total_pages = (total_items + page_size - 1) // page_size
+        
+        return {
+            "words": words,
+            "pagination": {
+                "current_page": page,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "items_per_page": page_size
+            }
+        } 
 
-      return jsonify({
-        'session': {
-          'id': session['id'],
-          'group_id': session['group_id'],
-          'group_name': session['group_name'],
-          'activity_id': session['activity_id'],
-          'activity_name': session['activity_name'],
-          'start_time': session['created_at'],
-          'end_time': session['created_at'],  # For now, just use the same time
-          'review_items_count': session['review_items_count']
-        },
-        'words': [{
-          'id': word['id'],
-          'kanji': word['kanji'],
-          'romaji': word['romaji'],
-          'english': word['english'],
-          'correct_count': word['session_correct_count'],
-          'wrong_count': word['session_wrong_count']
-        } for word in words],
-        'total': total_count,
-        'page': page,
-        'per_page': per_page,
-        'total_pages': math.ceil(total_count / per_page)
-      })
-    except Exception as e:
-      return jsonify({"error": str(e)}), 500
+@router.post("/study_sessions/{session_id}/words/{word_id}/review", response_model=WordReview, tags=["Study Sessions"])
+def create_word_review(
+    session_id: int = Path(..., title="The ID of the study session"),
+    word_id: int = Path(..., title="The ID of the word being reviewed"),
+    correct: bool = Body(..., embed=True)
+):
+    """
+    Record a word review during a study session.
 
-  # todo POST /study_sessions/:id/review
+    - **session_id**: The ID of the study session
+    - **word_id**: The ID of the word being reviewed
+    - **correct**: Whether the word was reviewed correctly
+    """
+    with get_db_connection() as conn:
+        # Check if session exists
+        session_exists = conn.execute(
+            "SELECT 1 FROM study_sessions WHERE id = ?",
+            (session_id,)
+        ).fetchone()
+        
+        if not session_exists:
+            raise HTTPException(status_code=404, detail="Study session not found")
 
-  @app.route('/api/study-sessions/reset', methods=['POST'])
-  @cross_origin()
-  def reset_study_sessions():
-    try:
-      cursor = app.db.cursor()
-      
-      # First delete all word review items since they have foreign key constraints
-      cursor.execute('DELETE FROM word_review_items')
-      
-      # Then delete all study sessions
-      cursor.execute('DELETE FROM study_sessions')
-      
-      app.db.commit()
-      
-      return jsonify({"message": "Study history cleared successfully"}), 200
-    except Exception as e:
-      return jsonify({"error": str(e)}), 500
+        # Check if word exists
+        word = conn.execute(
+            """
+            SELECT jamaican_patois, english 
+            FROM words 
+            WHERE id = ?
+            """,
+            (word_id,)
+        ).fetchone()
+        
+        if not word:
+            raise HTTPException(status_code=404, detail="Word not found")
+
+        # Create word review item if it doesn't exist
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO word_review_items (study_session_id, word_id)
+            VALUES (?, ?)
+            """,
+            (session_id, word_id)
+        )
+
+        # Create the word review
+        current_time = datetime.now().isoformat()
+        cursor = conn.execute(
+            """
+            INSERT INTO word_reviews (word_id, study_session_id, correct, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (word_id, session_id, correct, current_time)
+        )
+        review_id = cursor.lastrowid
+
+        return {
+            "id": review_id,
+            "word_id": word_id,
+            "study_session_id": session_id,
+            "correct": correct,
+            "created_at": current_time,
+            "word_jamaican_patois": word[0],
+            "word_english": word[1]
+        } 

@@ -1,249 +1,191 @@
-from flask import request, jsonify, g
-from flask_cors import cross_origin
+from fastapi import APIRouter, HTTPException, Query, Path
+from lib.db import get_db_connection
+from utils import paginate
+from models import PaginatedGroups, Group, PaginatedWords, Word, PaginatedStudySessions, StudySession
 import json
 
-def load(app):
-  @app.route('/groups', methods=['GET'])
-  @cross_origin()
-  def get_groups():
-    try:
-      cursor = app.db.cursor()
+router = APIRouter()
 
-      # Get the current page number from query parameters (default is 1)
-      page = int(request.args.get('page', 1))
-      groups_per_page = 10
-      offset = (page - 1) * groups_per_page
+@router.get("/groups", response_model=PaginatedGroups, tags=["Groups"])
+def get_groups(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=100)):
+    """
+    Retrieve a paginated list of groups.
 
-      # Get sorting parameters from the query string
-      sort_by = request.args.get('sort_by', 'name')  # Default to sorting by 'name'
-      order = request.args.get('order', 'asc')  # Default to ascending order
+    - **page**: The page number to retrieve.
+    - **page_size**: The number of items per page.
+    """
+    with get_db_connection() as conn:
+        # Query to get groups with word count
+        query = """
+        SELECT g.id, g.name,
+               (SELECT COUNT(*) FROM word_groups wg WHERE wg.group_id = g.id) as word_count
+        FROM groups g
+        """
+        paginated_query = paginate(query, page, page_size)
+        cursor = conn.execute(paginated_query)
+        rows = cursor.fetchall()
+        if not rows:
+            raise HTTPException(status_code=404, detail="No groups found")
+        
+        # Convert rows to list of Group models and then to dictionaries
+        groups = [
+            Group(
+                id=row[0],
+                name=row[1],
+                word_count=row[2],
+                description=None  # Assuming description is not part of the query
+            ).model_dump() for row in rows
+        ]
 
-      # Validate sort_by and order
-      valid_columns = ['name', 'words_count']
-      if sort_by not in valid_columns:
-        sort_by = 'name'
-      if order not in ['asc', 'desc']:
-        order = 'asc'
+        # Calculate total items and total pages
+        total_items = conn.execute("SELECT COUNT(*) FROM groups").fetchone()[0]
+        total_pages = (total_items + page_size - 1) // page_size
+        
+        return {
+            "groups": groups,
+            "pagination": {
+                "current_page": page,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "items_per_page": page_size
+            }
+        }
 
-      # Query to fetch groups with sorting and the cached word count
-      cursor.execute(f'''
-        SELECT id, name, words_count
-        FROM groups
-        ORDER BY {sort_by} {order}
-        LIMIT ? OFFSET ?
-      ''', (groups_per_page, offset))
+@router.get("/groups/{group_id}", response_model=Group, tags=["Groups"])
+def get_group(group_id: int = Path(..., title="The ID of the group to retrieve")):
+    """
+    Retrieve a group by its ID.
 
-      groups = cursor.fetchall()
+    - **group_id**: The ID of the group to retrieve.
+    """
+    with get_db_connection() as conn:
+        query = """
+        SELECT g.id, g.name,
+               (SELECT COUNT(*) FROM word_groups wg WHERE wg.group_id = g.id) as word_count
+        FROM groups g
+        WHERE g.id = ?
+        """
+        cursor = conn.execute(query, (group_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Group not found")
+        
+        # Convert row to Group model
+        group = Group(
+            id=row[0],
+            name=row[1],
+            word_count=row[2],
+            description=None  # Assuming description is not part of the query
+        ).model_dump()
+        
+        return group
 
-      # Query the total number of groups
-      cursor.execute('SELECT COUNT(*) FROM groups')
-      total_groups = cursor.fetchone()[0]
-      total_pages = (total_groups + groups_per_page - 1) // groups_per_page
+@router.get("/groups/{group_id}/words", response_model=PaginatedWords, tags=["Groups"])
+def get_group_words(group_id: int = Path(..., title="The ID of the group to retrieve words for"),
+                    page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=100)):
+    """
+    Retrieve a paginated list of words for a specific group.
 
-      # Format the response
-      groups_data = []
-      for group in groups:
-        groups_data.append({
-          "id": group["id"],
-          "group_name": group["name"],
-          "word_count": group["words_count"]
-        })
-
-      # Return groups and pagination metadata
-      return jsonify({
-        'groups': groups_data,
-        'total_pages': total_pages,
-        'current_page': page
-      })
-    except Exception as e:
-      return jsonify({"error": str(e)}), 500
-
-  @app.route('/groups/<int:id>', methods=['GET'])
-  @cross_origin()
-  def get_group(id):
-    try:
-      cursor = app.db.cursor()
-
-      # Get group details
-      cursor.execute('''
-        SELECT id, name, words_count
-        FROM groups
-        WHERE id = ?
-      ''', (id,))
-      
-      group = cursor.fetchone()
-      if not group:
-        return jsonify({"error": "Group not found"}), 404
-
-      return jsonify({
-        "id": group["id"],
-        "group_name": group["name"],
-        "word_count": group["words_count"]
-      })
-    except Exception as e:
-      return jsonify({"error": str(e)}), 500
-
-  @app.route('/groups/<int:id>/words', methods=['GET'])
-  @cross_origin()
-  def get_group_words(id):
-    try:
-      cursor = app.db.cursor()
-      
-      # Get pagination parameters
-      page = int(request.args.get('page', 1))
-      words_per_page = 10
-      offset = (page - 1) * words_per_page
-
-      # Get sorting parameters
-      sort_by = request.args.get('sort_by', 'kanji')
-      order = request.args.get('order', 'asc')
-
-      # Validate sort parameters
-      valid_columns = ['kanji', 'romaji', 'english', 'correct_count', 'wrong_count']
-      if sort_by not in valid_columns:
-        sort_by = 'kanji'
-      if order not in ['asc', 'desc']:
-        order = 'asc'
-
-      # First, check if the group exists
-      cursor.execute('SELECT name FROM groups WHERE id = ?', (id,))
-      group = cursor.fetchone()
-      if not group:
-        return jsonify({"error": "Group not found"}), 404
-
-      # Query to fetch words with pagination and sorting
-      cursor.execute(f'''
-        SELECT w.*, 
-               COALESCE(wr.correct_count, 0) as correct_count,
-               COALESCE(wr.wrong_count, 0) as wrong_count
+    - **group_id**: The ID of the group to retrieve words for.
+    - **page**: The page number to retrieve.
+    - **page_size**: The number of items per page.
+    """
+    with get_db_connection() as conn:
+        # Query to get words for a specific group
+        query = """
+        SELECT w.id, w.jamaican_patois, w.english, w.parts,
+               COALESCE(SUM(CASE WHEN wr.correct THEN 1 ELSE 0 END), 0) AS correct_count,
+               COALESCE(SUM(CASE WHEN NOT wr.correct THEN 1 ELSE 0 END), 0) AS wrong_count
         FROM words w
         JOIN word_groups wg ON w.id = wg.word_id
         LEFT JOIN word_reviews wr ON w.id = wr.word_id
         WHERE wg.group_id = ?
-        ORDER BY {sort_by} {order}
-        LIMIT ? OFFSET ?
-      ''', (id, words_per_page, offset))
-      
-      words = cursor.fetchall()
-
-      # Get total words count for pagination
-      cursor.execute('''
-        SELECT COUNT(*) 
-        FROM word_groups 
-        WHERE group_id = ?
-      ''', (id,))
-      total_words = cursor.fetchone()[0]
-      total_pages = (total_words + words_per_page - 1) // words_per_page
-
-      # Format the response
-      words_data = []
-      for word in words:
-        words_data.append({
-          "id": word["id"],
-          "kanji": word["kanji"],
-          "romaji": word["romaji"],
-          "english": word["english"],
-          "correct_count": word["correct_count"],
-          "wrong_count": word["wrong_count"]
-        })
-
-      return jsonify({
-        'words': words_data,
-        'total_pages': total_pages,
-        'current_page': page
-      })
-    except Exception as e:
-      return jsonify({"error": str(e)}), 500
-
-  # todo GET /groups/:id/words/raw
-
-  @app.route('/groups/<int:id>/study_sessions', methods=['GET'])
-  @cross_origin()
-  def get_group_study_sessions(id):
-    try:
-      cursor = app.db.cursor()
-      
-      # Get pagination parameters
-      page = int(request.args.get('page', 1))
-      sessions_per_page = 10
-      offset = (page - 1) * sessions_per_page
-
-      # Get sorting parameters
-      sort_by = request.args.get('sort_by', 'created_at')
-      order = request.args.get('order', 'desc')  # Default to newest first
-
-      # Map frontend sort keys to database columns
-      sort_mapping = {
-        'startTime': 'created_at',
-        'endTime': 'last_activity_time',
-        'activityName': 'a.name',
-        'groupName': 'g.name',
-        'reviewItemsCount': 'review_count'
-      }
-
-      # Use mapped sort column or default to created_at
-      sort_column = sort_mapping.get(sort_by, 'created_at')
-
-      # Get total count for pagination
-      cursor.execute('''
-        SELECT COUNT(*)
-        FROM study_sessions
-        WHERE group_id = ?
-      ''', (id,))
-      total_sessions = cursor.fetchone()[0]
-      total_pages = (total_sessions + sessions_per_page - 1) // sessions_per_page
-
-      # Get study sessions for this group with dynamic calculations
-      cursor.execute(f'''
-        SELECT 
-          s.id,
-          s.group_id,
-          s.study_activity_id,
-          s.created_at as start_time,
-          (
-            SELECT MAX(created_at)
-            FROM word_review_items
-            WHERE study_session_id = s.id
-          ) as last_activity_time,
-          a.name as activity_name,
-          g.name as group_name,
-          (
-            SELECT COUNT(*)
-            FROM word_review_items
-            WHERE study_session_id = s.id
-          ) as review_count
-        FROM study_sessions s
-        JOIN study_activities a ON s.study_activity_id = a.id
-        JOIN groups g ON s.group_id = g.id
-        WHERE s.group_id = ?
-        ORDER BY {sort_column} {order}
-        LIMIT ? OFFSET ?
-      ''', (id, sessions_per_page, offset))
-      
-      sessions = cursor.fetchall()
-      sessions_data = []
-      
-      for session in sessions:
-        # If there's no last_activity_time, use start_time + 30 minutes
-        end_time = session["last_activity_time"]
-        if not end_time:
-            end_time = cursor.execute('SELECT datetime(?, "+30 minutes")', (session["start_time"],)).fetchone()[0]
+        GROUP BY w.id
+        """
+        paginated_query = paginate(query, page, page_size)
+        cursor = conn.execute(paginated_query, (group_id,))
+        rows = cursor.fetchall()
+        if not rows:
+            raise HTTPException(status_code=404, detail="No words found for this group")
         
-        sessions_data.append({
-          "id": session["id"],
-          "group_id": session["group_id"],
-          "group_name": session["group_name"],
-          "study_activity_id": session["study_activity_id"],
-          "activity_name": session["activity_name"],
-          "start_time": session["start_time"],
-          "end_time": end_time,
-          "review_items_count": session["review_count"]
-        })
+        # Convert rows to list of Word models and then to dictionaries
+        words = [
+            Word(
+                id=row[0],
+                jamaican_patois=row[1],
+                english=row[2],
+                parts=json.loads(row[3]) if row[3] else None,
+                correct_count=row[4],
+                wrong_count=row[5]
+            ).model_dump() for row in rows
+        ]
 
-      return jsonify({
-        'study_sessions': sessions_data,
-        'total_pages': total_pages,
-        'current_page': page
-      })
-    except Exception as e:
-      return jsonify({"error": str(e)}), 500
+        # Calculate total items and total pages
+        total_items = conn.execute("SELECT COUNT(*) FROM word_groups WHERE group_id = ?", (group_id,)).fetchone()[0]
+        total_pages = (total_items + page_size - 1) // page_size
+        
+        return {
+            "words": words,
+            "pagination": {
+                "current_page": page,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "items_per_page": page_size
+            }
+        }
+
+@router.get("/groups/{group_id}/study_sessions", response_model=PaginatedStudySessions, tags=["Groups"])
+def get_group_study_sessions(group_id: int = Path(..., title="The ID of the group to retrieve study sessions for"),
+                             page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=100)):
+    """
+    Retrieve a paginated list of study sessions for a specific group.
+
+    - **group_id**: The ID of the group to retrieve study sessions for.
+    - **page**: The page number to retrieve.
+    - **page_size**: The number of items per page.
+    """
+    with get_db_connection() as conn:
+        # Query to get study sessions for a specific group
+        query = """
+        SELECT ss.id,
+               sa.name AS activity_name,
+               g.name AS group_name,
+               ss.created_at AS start_time,
+               NULL AS end_time,  -- or if you store an end_time, select it
+               (SELECT COUNT(*) FROM word_review_items wri WHERE wri.study_session_id = ss.id) as review_items_count
+        FROM study_sessions ss
+        LEFT JOIN study_activities sa ON sa.id = ss.study_activity_id
+        LEFT JOIN groups g ON g.id = ss.group_id
+        WHERE ss.group_id = ?
+        """
+        paginated_query = paginate(query, page, page_size)
+        cursor = conn.execute(paginated_query, (group_id,))
+        rows = cursor.fetchall()
+        if not rows:
+            raise HTTPException(status_code=404, detail="No study sessions found for this group")
+        
+        # Convert rows to list of StudySession models and then to dictionaries
+        study_sessions = [
+            StudySession(
+                id=row[0],
+                activity_name=row[1],
+                group_name=row[2],
+                start_time=row[3],
+                end_time=row[4],
+                review_items_count=row[5]
+            ).model_dump() for row in rows
+        ]
+
+        # Calculate total items and total pages
+        total_items = conn.execute("SELECT COUNT(*) FROM study_sessions WHERE group_id = ?", (group_id,)).fetchone()[0]
+        total_pages = (total_items + page_size - 1) // page_size
+        
+        return {
+            "study_sessions": study_sessions,
+            "pagination": {
+                "current_page": page,
+                "total_pages": total_pages,
+                "total_items": total_items,
+                "items_per_page": page_size
+            }
+        } 

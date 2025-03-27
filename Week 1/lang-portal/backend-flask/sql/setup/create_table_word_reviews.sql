@@ -1,8 +1,9 @@
 CREATE TABLE IF NOT EXISTS word_reviews (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  word_id INTEGER NOT NULL,
-  correct_count INTEGER DEFAULT 0,
-  wrong_count INTEGER DEFAULT 0,
-  last_reviewed TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (word_id) REFERENCES words(id)
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    word_id INTEGER NOT NULL,
+    study_session_id INTEGER NOT NULL,
+    correct BOOLEAN,
+    created_at DATETIME,
+    FOREIGN KEY (word_id) REFERENCES words(id),
+    FOREIGN KEY (study_session_id) REFERENCES study_sessions(id)
 );
