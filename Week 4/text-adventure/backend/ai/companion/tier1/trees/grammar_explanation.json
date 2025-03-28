@@ -1,0 +1,94 @@
+{
+  "id": "grammar_explanation",
+  "name": "Grammar Explanation",
+  "description": "Helps the player with grammar",
+  "root_node": "ask_grammar",
+  "nodes": {
+    "ask_grammar": {
+      "type": "question",
+      "message": "Which grammar point would you like to know about?",
+      "transitions": {
+        "grammar_provided": "provide_explanation",
+        "no_grammar": "ask_for_context",
+        "default": "fallback"
+      }
+    },
+    "provide_explanation": {
+      "type": "response",
+      "message": "The grammar pattern '{pattern}' is used to {usage}.",
+      "transitions": {
+        "ask_for_example": "provide_example",
+        "ask_for_conjugation": "provide_conjugation",
+        "default": "ask_if_helpful"
+      }
+    },
+    "provide_example": {
+      "type": "response",
+      "message": "Here's an example: {example}",
+      "transitions": {
+        "ask_for_conjugation": "provide_conjugation",
+        "default": "ask_if_helpful"
+      }
+    },
+    "provide_conjugation": {
+      "type": "response",
+      "message": "Here's how to conjugate '{pattern}': {conjugation}",
+      "transitions": {
+        "ask_for_example": "provide_example",
+        "default": "ask_if_helpful"
+      }
+    },
+    "ask_for_context": {
+      "type": "question",
+      "message": "Could you provide some context or a sentence where you saw this grammar?",
+      "transitions": {
+        "context_provided": "analyze_context",
+        "default": "fallback"
+      }
+    },
+    "analyze_context": {
+      "type": "process",
+      "action": "analyze_context",
+      "transitions": {
+        "grammar_found": "provide_explanation",
+        "default": "fallback"
+      }
+    },
+    "ask_if_helpful": {
+      "type": "question",
+      "message": "Was that helpful?",
+      "transitions": {
+        "yes": "end_conversation",
+        "no": "ask_for_clarification",
+        "default": "end_conversation"
+      }
+    },
+    "ask_for_clarification": {
+      "type": "question",
+      "message": "What else would you like to know about '{pattern}'?",
+      "transitions": {
+        "ask_for_example": "provide_example",
+        "ask_for_conjugation": "provide_conjugation",
+        "default": "fallback"
+      }
+    },
+    "fallback": {
+      "type": "response",
+      "message": "I'm sorry, I don't understand. Let's try a different approach.",
+      "transitions": {
+        "default": "ask_grammar"
+      }
+    },
+    "end_conversation": {
+      "type": "response",
+      "message": "Great! Let me know if you need help with any other grammar points.",
+      "transitions": {
+        "default": "exit"
+      }
+    },
+    "exit": {
+      "type": "exit",
+      "message": "Conversation ended."
+    }
+  }
+} 

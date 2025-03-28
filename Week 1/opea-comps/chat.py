@@ -54,9 +54,6 @@ class Chat:
 
     def start(self):
         print('start')
-
-        def start(self):
-
         self.service = MicroService(
             self.__class__.__name__,
             service_role=ServiceRoleType.MEGASERVICE,

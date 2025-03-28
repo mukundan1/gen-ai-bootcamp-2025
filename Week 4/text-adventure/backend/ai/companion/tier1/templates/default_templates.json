@@ -1,0 +1,79 @@
+{
+  "vocabulary_help": [
+    "{word} means {meaning} in Japanese.",
+    "The Japanese word '{word}' translates to '{meaning}' in English.",
+    "'{word}' is the Japanese word for '{meaning}'.",
+    "In Japanese, '{meaning}' is called '{word}'.",
+    "The meaning of '{word}' is '{meaning}'."
+  ],
+  "grammar_explanation": [
+    "The pattern {pattern} is used to {usage}.",
+    "When you want to {usage}, you can use the pattern {pattern}.",
+    "In Japanese, {pattern} is a grammar pattern for {usage}.",
+    "To {usage} in Japanese, use the pattern {pattern}.",
+    "The grammar pattern {pattern} is commonly used when you want to {usage}."
+  ],
+  "direction_guidance": [
+    "To get to {destination}, you need to {directions}.",
+    "Follow these directions to {destination}: {directions}",
+    "Here's how to reach {destination}: {directions}",
+    "To reach {destination} from here, {directions}",
+    "The way to {destination} is: {directions}"
+  ],
+  "translation_confirmation": [
+    "'{original}' in Japanese is '{translation}'.",
+    "The phrase '{original}' translates to '{translation}' in Japanese.",
+    "'{translation}' is how you say '{original}' in Japanese.",
+    "The Japanese translation of '{original}' is '{translation}'.",
+    "In Japanese, '{original}' would be '{translation}'."
+  ],
+  "general_hint": [
+    "Here's a hint: {hint}",
+    "Let me give you a tip: {hint}",
+    "This might help: {hint}",
+    "A helpful suggestion: {hint}",
+    "Consider this: {hint}"
+  ],
+  "fallback": [
+    "I'm not sure I understand. Could you rephrase that?",
+    "I don't have information about that. Can I help with something else?",
+    "I'm still learning and don't know about that yet.",
+    "I don't understand that question. Could you try asking in a different way?",
+    "I'm sorry, but I don't have an answer for that."
+  ],
+  "vocabulary_help_in_station": [
+    "You can see '{word}' on the signs here. It means '{meaning}'.",
+    "Look at the station signs - '{word}' means '{meaning}'.",
+    "The word '{word}' is on many signs in this station. It means '{meaning}'.",
+    "In this station, you'll see '{word}' which means '{meaning}'.",
+    "Notice the signs with '{word}' on them? That means '{meaning}'."
+  ],
+  "vocabulary_help_beginner": [
+    "The word '{word}' means '{meaning}'. This is a basic Japanese word that's good to remember.",
+    "'{word}' is '{meaning}' in English. It's one of the first words Japanese learners typically learn.",
+    "For beginners, '{word}' is an important word to know. It means '{meaning}'.",
+    "As you're learning Japanese, remember that '{word}' means '{meaning}'.",
+    "A basic Japanese word to learn: '{word}' means '{meaning}'."
+  ],
+  "vocabulary_help_intermediate": [
+    "'{word}' means '{meaning}'. You might recognize the kanji from other words you've learned.",
+    "The term '{word}' (meaning '{meaning}') uses kanji that appear in several common words.",
+    "'{word}' translates to '{meaning}'. Notice how the grammar structure works here.",
+    "The word '{word}' ('{meaning}') is commonly used in daily conversations.",
+    "'{word}' means '{meaning}'. It's often used in the context of train stations and travel."
+  ],
+  "grammar_explanation_high": [
+    "The grammatical pattern {pattern} is utilized when one wishes to {usage}.",
+    "In formal Japanese, the pattern {pattern} is employed to {usage}.",
+    "When one needs to {usage}, the appropriate grammatical structure is {pattern}.",
+    "The formal pattern {pattern} allows one to {usage} in Japanese.",
+    "To express {usage} in formal Japanese, one would use the pattern {pattern}."
+  ],
+  "grammar_explanation_casual": [
+    "You can use {pattern} when you wanna {usage}.",
+    "To {usage}, just say {pattern} - super easy!",
+    "The casual way to {usage} is with {pattern}.",
+    "{pattern} is how you'd {usage} when chatting with friends.",
+    "With friends, you can just use {pattern} to {usage}."
+  ]
+} 

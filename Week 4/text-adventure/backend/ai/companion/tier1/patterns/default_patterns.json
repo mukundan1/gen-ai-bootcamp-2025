@@ -1,0 +1,140 @@
+{
+  "vocabulary": {
+    "station": [
+      "駅",
+      "えき",
+      "eki"
+    ],
+    "ticket": [
+      "切符",
+      "きっぷ",
+      "kippu"
+    ],
+    "train": [
+      "電車",
+      "でんしゃ",
+      "densha"
+    ],
+    "platform": [
+      "ホーム",
+      "プラットホーム",
+      "houmu",
+      "purattohoomu"
+    ],
+    "exit": [
+      "出口",
+      "でぐち",
+      "deguchi"
+    ],
+    "entrance": [
+      "入口",
+      "いりぐち",
+      "iriguchi"
+    ],
+    "line": [
+      "線",
+      "せん",
+      "sen"
+    ],
+    "transfer": [
+      "乗り換え",
+      "のりかえ",
+      "norikae"
+    ],
+    "fare": [
+      "運賃",
+      "うんちん",
+      "unchin"
+    ],
+    "timetable": [
+      "時刻表",
+      "じこくひょう",
+      "jikokuhyou"
+    ]
+  },
+  "grammar": {
+    "want_to": {
+      "patterns": [
+        "～たい",
+        "～がほしい",
+        "want to",
+        "would like to"
+      ],
+      "usage": "express desire or wish to do something"
+    },
+    "must": {
+      "patterns": [
+        "～なければならない",
+        "～ないといけない",
+        "must",
+        "have to"
+      ],
+      "usage": "express obligation or necessity"
+    },
+    "can": {
+      "patterns": [
+        "～ことができる",
+        "～られる",
+        "can",
+        "able to"
+      ],
+      "usage": "express ability or possibility"
+    },
+    "should": {
+      "patterns": [
+        "～べき",
+        "～ほうがいい",
+        "should",
+        "ought to"
+      ],
+      "usage": "express advice or recommendation"
+    },
+    "if": {
+      "patterns": [
+        "～たら",
+        "～ば",
+        "～と",
+        "if",
+        "when"
+      ],
+      "usage": "express conditional statements"
+    }
+  },
+  "phrases": {
+    "where_is": [
+      "どこ",
+      "どこですか",
+      "where is",
+      "where can I find"
+    ],
+    "how_to": [
+      "どうやって",
+      "どのように",
+      "how do I",
+      "how to"
+    ],
+    "what_is": [
+      "何",
+      "なん",
+      "what is",
+      "what does"
+    ],
+    "excuse_me": [
+      "すみません",
+      "excuse me",
+      "pardon me"
+    ],
+    "thank_you": [
+      "ありがとう",
+      "ありがとうございます",
+      "thank you",
+      "thanks"
+    ],
+    "help": [
+      "助けて",
+      "たすけて",
+      "help",
+      "need help"
+    ]
+  }
+} 

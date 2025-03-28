@@ -1,0 +1,94 @@
+{
+  "id": "vocabulary_help",
+  "name": "Vocabulary Help",
+  "description": "Helps the player with vocabulary",
+  "root_node": "ask_word",
+  "nodes": {
+    "ask_word": {
+      "type": "question",
+      "message": "Which word would you like to know about?",
+      "transitions": {
+        "word_provided": "provide_meaning",
+        "no_word": "ask_for_context",
+        "default": "fallback"
+      }
+    },
+    "provide_meaning": {
+      "type": "response",
+      "message": "'{word}' means '{meaning}' in Japanese.",
+      "transitions": {
+        "ask_for_example": "provide_example",
+        "ask_for_kanji": "provide_kanji",
+        "default": "ask_if_helpful"
+      }
+    },
+    "provide_example": {
+      "type": "response",
+      "message": "Here's an example: {example}",
+      "transitions": {
+        "ask_for_kanji": "provide_kanji",
+        "default": "ask_if_helpful"
+      }
+    },
+    "provide_kanji": {
+      "type": "response",
+      "message": "The kanji for '{word}' is '{kanji}'.",
+      "transitions": {
+        "ask_for_example": "provide_example",
+        "default": "ask_if_helpful"
+      }
+    },
+    "ask_for_context": {
+      "type": "question",
+      "message": "Could you provide some context or a sentence where you heard this word?",
+      "transitions": {
+        "context_provided": "analyze_context",
+        "default": "fallback"
+      }
+    },
+    "analyze_context": {
+      "type": "process",
+      "action": "analyze_context",
+      "transitions": {
+        "word_found": "provide_meaning",
+        "default": "fallback"
+      }
+    },
+    "ask_if_helpful": {
+      "type": "question",
+      "message": "Was that helpful?",
+      "transitions": {
+        "yes": "end_conversation",
+        "no": "ask_for_clarification",
+        "default": "end_conversation"
+      }
+    },
+    "ask_for_clarification": {
+      "type": "question",
+      "message": "What else would you like to know about '{word}'?",
+      "transitions": {
+        "ask_for_example": "provide_example",
+        "ask_for_kanji": "provide_kanji",
+        "default": "fallback"
+      }
+    },
+    "fallback": {
+      "type": "response",
+      "message": "I'm sorry, I don't understand. Let's try a different approach.",
+      "transitions": {
+        "default": "ask_word"
+      }
+    },
+    "end_conversation": {
+      "type": "response",
+      "message": "Great! Let me know if you need help with any other words.",
+      "transitions": {
+        "default": "exit"
+      }
+    },
+    "exit": {
+      "type": "exit",
+      "message": "Conversation ended."
+    }
+  }
+} 

@@ -1,0 +1,79 @@
+{
+    "vocabulary_help": [
+        "{word} means {meaning} in Japanese.",
+        "The Japanese word '{word}' translates to '{meaning}' in English.",
+        "'{word}' is the Japanese word for '{meaning}'.",
+        "In Japanese, '{meaning}' is called '{word}'.",
+        "The meaning of '{word}' is '{meaning}'."
+    ],
+    "vocabulary_help_in_station": [
+        "You can see '{word}' on the signs here. It means '{meaning}'.",
+        "Look at the station signs - '{word}' means '{meaning}'.",
+        "The station signs show '{word}', which means '{meaning}'.",
+        "In this station, you'll see '{word}' written on signs. It means '{meaning}'.",
+        "'{word}' is written on many signs in this station. It means '{meaning}'."
+    ],
+    "vocabulary_help_near_ticket_machine": [
+        "On the ticket machine, you can see '{word}', which means '{meaning}'.",
+        "The ticket machine has '{word}' written on it. That means '{meaning}'.",
+        "Look at the ticket machine - you'll find '{word}' (meaning '{meaning}') on the buttons.",
+        "The '{word}' button on the ticket machine means '{meaning}'.",
+        "When using the ticket machine, '{word}' refers to '{meaning}'."
+    ],
+    "grammar_explanation": [
+        "The pattern '{pattern}' is used to {usage}.",
+        "When you want to {usage}, you can use the pattern '{pattern}'.",
+        "'{pattern}' is a grammar pattern that allows you to {usage}.",
+        "To {usage} in Japanese, use the pattern '{pattern}'.",
+        "The grammar pattern '{pattern}' is commonly used when you want to {usage}."
+    ],
+    "grammar_explanation_in_station": [
+        "Listen to the station announcements - they often use '{pattern}' to {usage}.",
+        "In station announcements, '{pattern}' is used to {usage}.",
+        "Station staff might say '{pattern}' when they want to {usage}.",
+        "When you're in a station, you'll hear '{pattern}' used to {usage}.",
+        "The station announcements that {usage} typically use the pattern '{pattern}'."
+    ],
+    "direction_guidance": [
+        "To get to {destination}, you need to {directions}.",
+        "Follow these directions to {destination}: {directions}",
+        "Here's how to reach {destination}: {directions}",
+        "To reach {destination} from here, {directions}",
+        "The way to {destination} is: {directions}"
+    ],
+    "direction_guidance_in_station": [
+        "In this station, to get to {destination}, you should {directions}.",
+        "From where we are in the station, reach {destination} by: {directions}",
+        "Navigate through this station to {destination} by: {directions}",
+        "Inside this station, the route to {destination} is: {directions}",
+        "To find {destination} within this station, {directions}"
+    ],
+    "direction_guidance_near_information_booth": [
+        "The information booth can help you get to {destination}. Ask them or {directions}.",
+        "We're near the information booth. To get to {destination}, you can ask there or {directions}.",
+        "Since we're at the information booth, you could ask for directions to {destination} or {directions}.",
+        "The staff at this information booth can guide you to {destination}, or you can {directions}.",
+        "From this information booth, to reach {destination}, {directions}"
+    ],
+    "translation_confirmation": [
+        "'{original}' in Japanese is '{translation}'.",
+        "The phrase '{original}' translates to '{translation}' in Japanese.",
+        "'{translation}' is how you say '{original}' in Japanese.",
+        "The Japanese translation of '{original}' is '{translation}'.",
+        "In Japanese, '{original}' would be '{translation}'."
+    ],
+    "general_hint": [
+        "Here's a hint: {hint}",
+        "Let me give you a tip: {hint}",
+        "This might help: {hint}",
+        "A helpful suggestion: {hint}",
+        "Consider this: {hint}"
+    ],
+    "general_hint_in_station": [
+        "While we're in the station, remember: {hint}",
+        "In train stations like this one: {hint}",
+        "A station-specific tip: {hint}",
+        "For navigating this station: {hint}",
+        "When you're in Japanese stations like this: {hint}"
+    ]
+} 
