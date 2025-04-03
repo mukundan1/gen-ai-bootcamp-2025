@@ -283,7 +283,7 @@ def get_activity_words(
 
         # Get words for the group
         query = """
-        SELECT w.id, w.jamaican_patois, w.english, w.parts,
+        SELECT w.id, w.japanese, w.english, w.parts,
                COALESCE(SUM(CASE WHEN wr.correct THEN 1 ELSE 0 END), 0) as correct_count,
                COALESCE(SUM(CASE WHEN NOT wr.correct THEN 1 ELSE 0 END), 0) as wrong_count
         FROM words w
@@ -307,7 +307,7 @@ def get_activity_words(
         words = [
             {
                 "id": row[0],
-                "jamaican_patois": row[1],
+                "japanese": row[1],
                 "english": row[2],
                 "parts": json.loads(row[3]) if row[3] else None,
                 "correct_count": row[4],

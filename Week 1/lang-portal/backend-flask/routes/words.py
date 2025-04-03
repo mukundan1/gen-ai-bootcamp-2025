@@ -17,7 +17,7 @@ def get_words(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=10
     with get_db_connection() as conn:
         # Query to get words with correct and wrong counts
         query = """
-        SELECT w.id, w.jamaican_patois, w.english, w.parts,
+        SELECT w.id, w.japanese, w.english, w.parts, w.romaji, w.reading, w.word_type, w.jlpt_level,
                COALESCE(SUM(CASE WHEN wr.correct THEN 1 ELSE 0 END), 0) AS correct_count,
                COALESCE(SUM(CASE WHEN NOT wr.correct THEN 1 ELSE 0 END), 0) AS wrong_count
         FROM words w
@@ -34,11 +34,15 @@ def get_words(page: int = Query(1, ge=1), page_size: int = Query(10, ge=1, le=10
         words = [
             Word(
                 id=row[0],
-                jamaican_patois=row[1],
+                japanese=row[1],
                 english=row[2],
                 parts=json.loads(row[3]) if row[3] else None,
-                correct_count=row[4],
-                wrong_count=row[5]
+                romaji=row[4],
+                reading=row[5],
+                word_type=row[6],
+                jlpt_level=row[7],
+                correct_count=row[8],
+                wrong_count=row[9]
             ).model_dump() for row in rows
         ]
 
@@ -65,7 +69,7 @@ def get_word(word_id: int = Path(..., title="The ID of the word to retrieve")):
     """
     with get_db_connection() as conn:
         query = """
-        SELECT w.id, w.jamaican_patois, w.english, w.parts,
+        SELECT w.id, w.japanese, w.english, w.parts, w.romaji, w.reading, w.word_type, w.jlpt_level,
                COALESCE(SUM(CASE WHEN wr.correct THEN 1 ELSE 0 END), 0) AS correct_count,
                COALESCE(SUM(CASE WHEN NOT wr.correct THEN 1 ELSE 0 END), 0) AS wrong_count
         FROM words w

@@ -93,7 +93,7 @@ def get_group_words(group_id: int = Path(..., title="The ID of the group to retr
     with get_db_connection() as conn:
         # Query to get words for a specific group
         query = """
-        SELECT w.id, w.jamaican_patois, w.english, w.parts,
+        SELECT w.id, w.japanese, w.english, w.parts,
                COALESCE(SUM(CASE WHEN wr.correct THEN 1 ELSE 0 END), 0) AS correct_count,
                COALESCE(SUM(CASE WHEN NOT wr.correct THEN 1 ELSE 0 END), 0) AS wrong_count
         FROM words w
@@ -112,7 +112,7 @@ def get_group_words(group_id: int = Path(..., title="The ID of the group to retr
         words = [
             Word(
                 id=row[0],
-                jamaican_patois=row[1],
+                japanese=row[1],
                 english=row[2],
                 parts=json.loads(row[3]) if row[3] else None,
                 correct_count=row[4],

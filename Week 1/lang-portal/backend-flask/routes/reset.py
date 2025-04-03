@@ -78,19 +78,23 @@ async def seed_test_data():
         # Create test groups
         conn.execute("""
             INSERT INTO groups (name, description) VALUES 
-            ('Beginner Patois', 'Basic vocabulary and phrases'),
-            ('Intermediate Patois', 'More complex expressions'),
-            ('Advanced Patois', 'Advanced language concepts')
+            ('Beginner Japanese', 'Basic Japanese vocabulary and phrases'),
+            ('Intermediate Japanese', 'Common Japanese expressions and grammar')
         """)
         
         # Create test words
         conn.execute("""
-            INSERT INTO words (jamaican_patois, english, parts, group_id) VALUES 
-            ('mi', 'me/my', '{"type":"pronoun","usage":"subject"}', 1),
-            ('yuh', 'you', '{"type":"pronoun","usage":"subject"}', 1),
-            ('dem', 'them/they', '{"type":"pronoun","usage":"subject"}', 1),
-            ('nyam', 'eat', '{"type":"verb","usage":"action"}', 2),
-            ('gwaan', 'go on/continue', '{"type":"verb","usage":"action"}', 2)
+            INSERT INTO words (japanese, english, parts, romaji, reading, word_type, jlpt_level, group_id) VALUES 
+            ('私', 'I/me', '{"type":"pronoun","usage":"subject"}', 'watashi', 'わたし', 'pronoun', 5, 1),
+            ('あなた', 'you', '{"type":"pronoun","usage":"subject"}', 'anata', 'あなた', 'pronoun', 5, 1),
+            ('彼ら', 'they/them', '{"type":"pronoun","usage":"subject"}', 'karera', 'かれら', 'pronoun', 4, 1),
+            ('私たち', 'we/us', '{"type":"pronoun","usage":"subject"}', 'watashitachi', 'わたしたち', 'pronoun', 5, 1),
+            ('彼', 'he/him', '{"type":"pronoun","usage":"subject"}', 'kare', 'かれ', 'pronoun', 5, 1),
+            ('走る', 'run', '{"type":"verb","tense":"present"}', 'hashiru', 'はしる', 'verb', 4, 2),
+            ('歩く', 'walk', '{"type":"verb","tense":"present"}', 'aruku', 'あるく', 'verb', 5, 2),
+            ('話す', 'talk', '{"type":"verb","tense":"present"}', 'hanasu', 'はなす', 'verb', 5, 2),
+            ('食べる', 'eat', '{"type":"verb","tense":"present"}', 'taberu', 'たべる', 'verb', 5, 2),
+            ('寝る', 'sleep', '{"type":"verb","tense":"present"}', 'neru', 'ねる', 'verb', 5, 2)
         """)
         
         # Create test study activities

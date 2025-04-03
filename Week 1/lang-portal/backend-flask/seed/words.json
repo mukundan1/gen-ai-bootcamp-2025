@@ -1,162 +1,182 @@
 [
     {
         "id": 1,
-        "jamaican_patois": "Wah Gwaan",
+        "japanese": "こんにちは",
         "english": "Hello",
         "parts": {
-            "type": "phrase"
+            "type": "phrase",
+            "romaji": "konnichiwa"
         }
     },
     {
         "id": 2,
-        "jamaican_patois": "Mi deh yah",
+        "japanese": "ここにいます",
         "english": "I'm here",
         "parts": {
-            "type": "phrase"
+            "type": "phrase",
+            "romaji": "koko ni imasu"
         }
     },
     {
         "id": 3,
-        "jamaican_patois": "Weh yuh deh pon?",
-        "english": "What are you up to?",
+        "japanese": "何してる？",
+        "english": "What are you doing?",
         "parts": {
-            "type": "phrase"
+            "type": "phrase",
+            "romaji": "nani shiteru?"
         }
     },
     {
         "id": 4,
-        "jamaican_patois": "Small up yuhself",
-        "english": "Make room",
+        "japanese": "すみません",
+        "english": "Excuse me",
         "parts": {
-            "type": "phrase"
+            "type": "phrase",
+            "romaji": "sumimasen"
         }
     },
     {
         "id": 5,
-        "jamaican_patois": "Tek time",
-        "english": "Go slowly",
+        "japanese": "ゆっくり",
+        "english": "Slowly",
         "parts": {
-            "type": "phrase"
+            "type": "adverb",
+            "romaji": "yukkuri"
         }
     },
     {
         "id": 6,
-        "jamaican_patois": "Big up",
-        "english": "Respect",
+        "japanese": "よろしく",
+        "english": "Please treat me well",
         "parts": {
-            "type": "verb"
+            "type": "phrase",
+            "romaji": "yoroshiku"
         }
     },
     {
         "id": 7,
-        "jamaican_patois": "Likkle more",
-        "english": "Later",
+        "japanese": "また後で",
+        "english": "See you later",
         "parts": {
-            "type": "phrase"
+            "type": "phrase",
+            "romaji": "mata atode"
         }
     },
     {
         "id": 8,
-        "jamaican_patois": "Fimi",
+        "japanese": "私の",
         "english": "Mine",
         "parts": {
-            "type": "possessive"
+            "type": "possessive",
+            "romaji": "watashi no"
         }
     },
     {
         "id": 9,
-        "jamaican_patois": "Nuh badda mi",
+        "japanese": "邪魔しないで",
         "english": "Don't bother me",
         "parts": {
-            "type": "phrase"
+            "type": "phrase",
+            "romaji": "jama shinaide"
         }
     },
     {
         "id": 10,
-        "jamaican_patois": "Craven",
+        "japanese": "欲張り",
         "english": "Greedy",
         "parts": {
-            "type": "adjective"
+            "type": "adjective",
+            "romaji": "yokubari"
         }
     },
     {
         "id": 11,
-        "jamaican_patois": "Madda",
+        "japanese": "お母さん",
         "english": "Mother",
         "parts": {
-            "type": "noun"
+            "type": "noun",
+            "romaji": "okaasan"
         }
     },
     {
         "id": 12,
-        "jamaican_patois": "Fada",
+        "japanese": "お父さん",
         "english": "Father",
         "parts": {
-            "type": "noun"
+            "type": "noun",
+            "romaji": "otousan"
         }
     },
     {
         "id": 13,
-        "jamaican_patois": "Pickney",
+        "japanese": "子供",
         "english": "Child",
         "parts": {
-            "type": "noun"
+            "type": "noun",
+            "romaji": "kodomo"
         }
     },
     {
         "id": 14,
-        "jamaican_patois": "Nyam",
+        "japanese": "食べる",
         "english": "Eat",
         "parts": {
-            "type": "verb"
+            "type": "verb",
+            "romaji": "taberu"
         }
     },
     {
         "id": 15,
-        "jamaican_patois": "Rhaatid",
+        "japanese": "えっ！",
         "english": "Expression of surprise",
         "parts": {
-            "type": "interjection"
+            "type": "interjection",
+            "romaji": "e!"
         }
     },
     {
         "id": 16,
-        "jamaican_patois": "Boonoonoonoos",
+        "japanese": "素晴らしい",
         "english": "Wonderful",
         "parts": {
-            "type": "adjective"
+            "type": "adjective",
+            "romaji": "subarashii"
         }
     },
     {
         "id": 17,
-        "jamaican_patois": "Bredren",
-        "english": "Friend (male)",
+        "japanese": "友達",
+        "english": "Friend",
         "parts": {
-            "type": "noun"
+            "type": "noun",
+            "romaji": "tomodachi"
         }
     },
     {
         "id": 18,
-        "jamaican_patois": "Sistren",
-        "english": "Friend (female)",
+        "japanese": "仲間",
+        "english": "Friend/Companion",
         "parts": {
-            "type": "noun"
+            "type": "noun",
+            "romaji": "nakama"
         }
     },
     {
         "id": 19,
-        "jamaican_patois": "Yute",
+        "japanese": "若者",
         "english": "Youth",
         "parts": {
-            "type": "noun"
+            "type": "noun",
+            "romaji": "wakamono"
         }
     },
     {
         "id": 20,
-        "jamaican_patois": "Irie",
-        "english": "Alright / Good",
+        "japanese": "大丈夫",
+        "english": "Alright/Okay",
         "parts": {
-            "type": "adjective"
+            "type": "adjective",
+            "romaji": "daijoubu"
         }
     }
 ]

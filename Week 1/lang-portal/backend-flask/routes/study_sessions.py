@@ -126,7 +126,7 @@ def get_session_words(
 
         # Query to get words for the session
         query = """
-        SELECT w.id, w.jamaican_patois, w.english, w.parts,
+        SELECT w.id, w.japanese, w.english, w.parts,
                COALESCE(SUM(CASE WHEN wr.correct THEN 1 ELSE 0 END), 0) as correct_count,
                COALESCE(SUM(CASE WHEN NOT wr.correct THEN 1 ELSE 0 END), 0) as wrong_count
         FROM words w
@@ -149,7 +149,7 @@ def get_session_words(
         words = [
             {
                 "id": row[0],
-                "jamaican_patois": row[1],
+                "japanese": row[1],
                 "english": row[2],
                 "parts": json.loads(row[3]) if row[3] else None,
                 "correct_count": row[4],
@@ -206,7 +206,7 @@ def create_word_review(
         # Check if word exists
         word = conn.execute(
             """
-            SELECT jamaican_patois, english 
+            SELECT japanese, english 
             FROM words 
             WHERE id = ?
             """,
@@ -242,6 +242,6 @@ def create_word_review(
             "study_session_id": session_id,
             "correct": correct,
             "created_at": current_time,
-            "word_jamaican_patois": word[0],
+            "word_japanese": word[0],
             "word_english": word[1]
         } 

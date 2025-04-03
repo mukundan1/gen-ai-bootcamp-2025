@@ -3,9 +3,13 @@ from typing import List, Optional
 
 class Word(BaseModel):
     id: int
-    jamaican_patois: str
+    japanese: str  # Kanji/kana form
     english: str
     parts: Optional[dict]
+    romaji: Optional[str]  # Romanized form
+    reading: Optional[str]  # Hiragana reading
+    word_type: Optional[str]  # e.g., noun, verb, adjective, etc.
+    jlpt_level: Optional[int]  # Japanese Language Proficiency Test level (N5-N1)
     correct_count: int
     wrong_count: int
 
@@ -54,7 +58,7 @@ class WordReview(BaseModel):
     study_session_id: int
     correct: bool
     created_at: str
-    word_jamaican_patois: str
+    word_japanese: str
     word_english: str
 
 class StudyProgress(BaseModel):

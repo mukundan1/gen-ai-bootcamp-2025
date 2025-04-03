@@ -1,6 +1,10 @@
 CREATE TABLE IF NOT EXISTS words (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    jamaican_patois TEXT NOT NULL,
+    japanese TEXT NOT NULL,
     english TEXT NOT NULL,
-    parts JSON
+    parts JSON,
+    romaji TEXT,
+    reading TEXT,
+    word_type TEXT,
+    jlpt_level INTEGER CHECK (jlpt_level BETWEEN 1 AND 5)
 );
