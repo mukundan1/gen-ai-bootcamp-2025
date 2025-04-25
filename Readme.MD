@@ -10,6 +10,9 @@ find me by "mukundan155" @ [Linkedin](https://linkedin.com/in/mukundan155) and [
 
 in the following images, you can see my Proof of Work
 
+### [Japanese Writing App](run6.png)
+![Japanese Writing App](run6.png)
+
 ### [Backend API Server (FastAPI)](run2.png)
 ![Backend API Server (FastAPI)](run2.png)
 
@@ -19,8 +22,12 @@ in the following images, you can see my Proof of Work
 ### [Gradio Web App API](run4.png)
 ![Gradio Web App API](run4.png)
 
+### [Proof of Work - Japanese Writing App logs in the development environment](run7.png)
+![Proof of Work - Japanese Writing App logs in the development environment](run7.png)
+
 ### [Proof of Work - Backend API Server logs in the development environment](run5.png)
 ![Proof of Work - Backend API Server logs in the development environment](run5.png)
 
 ### [Proof of Work - Gradio User Client logs in the development environment](run.png)
 ![Proof of Work - Gradio User Client logs in the development environment](run.png)
+
